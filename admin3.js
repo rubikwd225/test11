@@ -5,8 +5,7 @@ import {
     onSnapshot,
     updateDoc,
     doc,
-    getDoc,
-    setDoc
+    getDoc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 
@@ -50,214 +49,50 @@ const qrResult =
 let collectionName =
     "tickets_day1";
 
-let unsubscribe = null;
+let unsubscribe =
+    null;
 
-let unsubscribeDay = null;
+let qrScanner =
+    null;
 
-let qrScanner = null;
+let qrScanning =
+    false;
 
-let qrScanning = false;
-
-let qrProcessing = false;
-
-
-// ========================================
-// Firebase
-// settings/system
-// ========================================
-
-const systemRef =
-    doc(
-        db,
-        "settings",
-        "system"
-    );
+let qrProcessing =
+    false;
 
 
 // ========================================
-// Firebaseの現在の日付を監視
+// QRで検索するコレクション
 // ========================================
 
-function startDayListener() {
+const qrCollections = [
 
-    if (unsubscribeDay) {
+    "tickets_day1",
 
-        unsubscribeDay();
+    "tickets_day2",
 
-        unsubscribeDay = null;
+    "tickets_day3",
 
-    }
+    "special_tickets"
 
-
-    unsubscribeDay =
-        onSnapshot(
-
-            systemRef,
-
-            snapshot => {
-
-                if (!snapshot.exists()) {
-
-                    console.error(
-                        "settings/system が存在しません"
-                    );
-
-                    return;
-
-                }
-
-
-                const data =
-                    snapshot.data();
-
-
-                const activeDay =
-                    data.activeDay;
-
-
-                if (
-                    activeDay !== "tickets_day1" &&
-                    activeDay !== "tickets_day2" &&
-                    activeDay !== "tickets_day3"
-                ) {
-
-                    console.error(
-                        "activeDayが不正です:",
-                        activeDay
-                    );
-
-                    return;
-
-                }
-
-
-                // Firebaseの現在日を使用
-
-                collectionName =
-                    activeDay;
-
-
-                // ラジオボタンも同期
-
-                dayRadios.forEach(radio => {
-
-                    radio.checked =
-                        radio.value === activeDay;
-
-                });
-
-
-                console.log(
-                    "現在の日付:",
-                    collectionName
-                );
-
-
-                // チケット一覧を更新
-
-                startRealtimeListener();
-
-            },
-
-            error => {
-
-                console.error(
-                    "日付の取得に失敗しました:",
-                    error
-                );
-
-                loading.style.display =
-                    "none";
-
-                ticketList.innerHTML = `
-
-                    <div class="error">
-
-                        日付情報の取得に失敗しました。
-
-                    </div>
-
-                `;
-
-            }
-
-        );
-
-}
+];
 
 
 // ========================================
-// 日付選択
+// 日付変更
 // ========================================
 
 dayRadios.forEach(radio => {
 
     radio.addEventListener(
         "change",
-        async () => {
+        () => {
 
-            if (!radio.checked) {
-
-                return;
-
-            }
-
-
-            const newDay =
+            collectionName =
                 radio.value;
 
-
-            if (
-                newDay !== "tickets_day1" &&
-                newDay !== "tickets_day2" &&
-                newDay !== "tickets_day3"
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                // Firebaseへ保存
-
-                await setDoc(
-
-                    systemRef,
-
-                    {
-                        activeDay:
-                            newDay
-                    },
-
-                    {
-                        merge: true
-                    }
-
-                );
-
-
-                console.log(
-                    "日付を変更しました:",
-                    newDay
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "日付変更エラー:",
-                    error
-                );
-
-
-                alert(
-                    "日付の変更に失敗しました。"
-                );
-
-            }
+            startRealtimeListener();
 
         }
     );
@@ -266,14 +101,14 @@ dayRadios.forEach(radio => {
 
 
 // ========================================
-// 日付監視開始
+// 初期読み込み
 // ========================================
 
-startDayListener();
+startRealtimeListener();
 
 
 // ========================================
-// リアルタイム監視
+// 通常のチケット一覧
 // ========================================
 
 function startRealtimeListener() {
@@ -564,6 +399,10 @@ function createTicketElement(ticket) {
         );
 
 
+    // ====================================
+    // プルダウン変更
+    // ====================================
+
     select.addEventListener(
         "change",
         async () => {
@@ -664,7 +503,7 @@ function createTicketElement(ticket) {
 
 
 // ========================================
-// プルダウン用クラス
+// プルダウンCSS
 // ========================================
 
 function getSelectClass(status) {
@@ -675,21 +514,17 @@ function getSelectClass(status) {
 
             return "select-waiting";
 
-
         case "accepted":
 
             return "select-accepted";
-
 
         case "entered":
 
             return "select-entered";
 
-
         case "invalid":
 
             return "select-invalid";
-
 
         default:
 
@@ -852,28 +687,65 @@ async function qrScanSuccess(text) {
 
 
 // ========================================
-// QRチケット検索
+// QRから全コレクションを検索
 // ========================================
 
 async function findTicketByQR(ticketId) {
 
     try {
 
-        const ticketRef =
-            doc(
-                db,
-                collectionName,
-                ticketId
-            );
+        let foundCollection =
+            null;
+
+        let foundData =
+            null;
 
 
-        const snap =
-            await getDoc(
-                ticketRef
-            );
+        // ====================================
+        // DAY1～DAY3＋特別券を順番に検索
+        // ====================================
+
+        for (
+            const targetCollection
+            of qrCollections
+        ) {
+
+            const ticketRef =
+                doc(
+                    db,
+                    targetCollection,
+                    ticketId
+                );
 
 
-        if (!snap.exists()) {
+            const snap =
+                await getDoc(
+                    ticketRef
+                );
+
+
+            if (snap.exists()) {
+
+                foundCollection =
+                    targetCollection;
+
+                foundData =
+                    snap.data();
+
+                break;
+
+            }
+
+        }
+
+
+        // ====================================
+        // 見つからない
+        // ====================================
+
+        if (
+            foundCollection === null
+        ) {
 
             showQRResult(
 
@@ -890,21 +762,23 @@ async function findTicketByQR(ticketId) {
         }
 
 
-        const data =
-            snap.data();
-
-
         const number =
-            data.number ??
+            foundData.number ??
             ticketId;
 
 
         const status =
-            data.status ??
+            foundData.status ??
             "waiting";
 
 
+        // ====================================
+        // 見つかったチケットを表示
+        // ====================================
+
         showTicketControl(
+
+            foundCollection,
 
             ticketId,
 
@@ -918,7 +792,10 @@ async function findTicketByQR(ticketId) {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "QRチケット検索エラー:",
+            error
+        );
 
 
         showQRResult(
@@ -930,6 +807,41 @@ async function findTicketByQR(ticketId) {
             "チケットの取得に失敗しました。"
 
         );
+
+    }
+
+}
+
+
+// ========================================
+// 日付名
+// ========================================
+
+function getCollectionText(
+    collectionName
+) {
+
+    switch (collectionName) {
+
+        case "tickets_day1":
+
+            return "1日目";
+
+        case "tickets_day2":
+
+            return "2日目";
+
+        case "tickets_day3":
+
+            return "3日目";
+
+        case "special_tickets":
+
+            return "特別招待券";
+
+        default:
+
+            return "不明";
 
     }
 
@@ -988,10 +900,11 @@ function showQRResult(
 
 
 // ========================================
-// QRチケット操作
+// QRチケット操作画面
 // ========================================
 
 function showTicketControl(
+    ticketCollection,
     ticketId,
     number,
     status
@@ -1006,6 +919,13 @@ function showTicketControl(
 
 
     qrResult.innerHTML = `
+
+        <div class="qr-ticket-day">
+
+            ${getCollectionText(ticketCollection)}
+
+        </div>
+
 
         <div class="qr-ticket-number">
 
@@ -1100,7 +1020,8 @@ function showTicketControl(
 
                 buttons.forEach(btn => {
 
-                    btn.disabled = true;
+                    btn.disabled =
+                        true;
 
                 });
 
@@ -1110,7 +1031,7 @@ function showTicketControl(
                     const ticketRef =
                         doc(
                             db,
-                            collectionName,
+                            ticketCollection,
                             ticketId
                         );
 
@@ -1128,6 +1049,8 @@ function showTicketControl(
 
 
                     showTicketControl(
+
+                        ticketCollection,
 
                         ticketId,
 
@@ -1151,7 +1074,8 @@ function showTicketControl(
 
                     buttons.forEach(btn => {
 
-                        btn.disabled = false;
+                        btn.disabled =
+                            false;
 
                     });
 
@@ -1195,7 +1119,8 @@ function setupQRCloseButton() {
         qrResult.innerHTML =
             "";
 
-        qrProcessing = false;
+        qrProcessing =
+            false;
 
     };
 
@@ -1218,7 +1143,10 @@ async function stopQRScanner() {
 
         catch (error) {
 
-            console.log(error);
+            console.log(
+                "QR scanner stop error:",
+                error
+            );
 
         }
 
@@ -1231,17 +1159,22 @@ async function stopQRScanner() {
 
         catch (error) {
 
-            console.log(error);
+            console.log(
+                "QR scanner clear error:",
+                error
+            );
 
         }
 
 
-        qrScanner = null;
+        qrScanner =
+            null;
 
     }
 
 
-    qrScanning = false;
+    qrScanning =
+        false;
 
 
     qrReader.style.display =
@@ -1276,7 +1209,8 @@ qrStopBtn.onclick =
             "";
 
 
-        qrProcessing = false;
+        qrProcessing =
+            false;
 
     };
 
@@ -1293,21 +1227,17 @@ function getStatusText(status) {
 
             return "受付前";
 
-
         case "accepted":
 
             return "受付済み";
-
 
         case "entered":
 
             return "入場済み";
 
-
         case "invalid":
 
             return "無効";
-
 
         default:
 
@@ -1330,21 +1260,17 @@ function getStatusClass(status) {
 
             return "status-waiting";
 
-
         case "accepted":
 
             return "status-accepted";
-
 
         case "entered":
 
             return "status-entered";
 
-
         case "invalid":
 
             return "status-invalid";
-
 
         default:
 
