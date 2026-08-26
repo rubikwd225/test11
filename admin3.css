@@ -166,39 +166,79 @@ main {
 
 
 /* ========================================
-   QR開始ボタン
+   QRメインボタン
+   ・QR読み取り
+   ・カメラを閉じる
 ======================================== */
 
-#qrStartBtn {
+.qr-main-btn {
 
     display: block;
 
     width: 100%;
 
+    max-width: 500px;
+
+    min-height: 58px;
+
+    padding: 16px 20px;
+
+    margin: 15px auto;
+
     border: none;
 
     border-radius: 12px;
 
-    padding: 14px;
+    font-family:
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
 
-    background: white;
-
-    color: #111;
-
-    font-size: 17px;
+    font-size: 18px;
 
     font-weight: bold;
 
     cursor: pointer;
 
-    transition: 0.15s;
+    transition:
+        transform 0.15s,
+        opacity 0.15s;
 
 }
 
 
-#qrStartBtn:hover {
+.qr-main-btn:hover {
 
     transform: scale(1.02);
+
+}
+
+
+.qr-main-btn:active {
+
+    transform: scale(0.98);
+
+}
+
+
+/* QR開始 */
+
+#qrStartBtn {
+
+    background: #2196f3;
+
+    color: white;
+
+}
+
+
+/* カメラ停止 */
+
+#qrStopBtn {
+
+    background: #555;
+
+    color: white;
 
 }
 
@@ -249,44 +289,6 @@ main {
 
 
 /* ========================================
-   QRカメラ停止
-======================================== */
-
-#qrStopBtn {
-
-    display: none;
-
-    width: 100%;
-
-    border: none;
-
-    border-radius: 12px;
-
-    padding: 13px;
-
-    margin-top: 10px;
-
-    background: #555;
-
-    color: white;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-
-#qrStopBtn:hover {
-
-    background: #666;
-
-}
-
-
-/* ========================================
    QR結果
 ======================================== */
 
@@ -296,17 +298,15 @@ main {
 
     width: 100%;
 
-    margin-top: 15px;
+    margin-top: 20px;
 
     border-radius: 15px;
-
-    padding: 20px;
 
 }
 
 
 /* ========================================
-   QRチケット操作
+   QRチケット操作画面
 ======================================== */
 
 .qr-ticket-control {
@@ -317,16 +317,22 @@ main {
 
     border-radius: 15px;
 
-    padding: 20px;
+    padding: 25px 20px;
 
     text-align: center;
 
 }
 
 
-.qr-ticket-number {
+/* ========================================
+   日付
+======================================== */
 
-    font-size: 40px;
+.qr-ticket-day {
+
+    color: #aaa;
+
+    font-size: 16px;
 
     font-weight: bold;
 
@@ -335,24 +341,47 @@ main {
 }
 
 
+/* ========================================
+   チケット番号
+======================================== */
+
+.qr-ticket-number {
+
+    font-size: 42px;
+
+    font-weight: bold;
+
+    margin-bottom: 5px;
+
+}
+
+
+/* ========================================
+   ID
+======================================== */
+
 .qr-ticket-id {
 
     color: #777;
 
     font-size: 12px;
 
-    margin-bottom: 18px;
+    margin-bottom: 22px;
 
     word-break: break-all;
 
 }
 
 
+/* ========================================
+   現在の状態
+======================================== */
+
 .qr-current-status {
 
-    font-size: 16px;
+    font-size: 17px;
 
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 
 }
 
@@ -365,10 +394,16 @@ main {
 
 
 /* ========================================
-   QRプルダウン
+   QR状態変更ボタン
 ======================================== */
 
-.qr-status-select {
+.qr-status-buttons {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
 
     width: 100%;
 
@@ -377,53 +412,124 @@ main {
 }
 
 
-/*
-   appearance は変更しない。
-   ブラウザ標準の ▼ を残す。
-*/
-
-
-/* ========================================
-   QR状態変更ボタン
-======================================== */
-
-.qr-update-btn {
+.qr-status-btn {
 
     width: 100%;
 
-    border: none;
+    min-height: 58px;
 
-    border-radius: 10px;
+    padding: 15px 20px;
 
-    padding: 13px;
+    border-radius: 12px;
 
-    background: white;
+    border: 2px solid transparent;
 
-    color: #111;
+    font-family:
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
 
-    font-size: 16px;
+    font-size: 18px;
 
     font-weight: bold;
 
     cursor: pointer;
 
-    transition: 0.15s;
+    transition:
+        transform 0.15s,
+        opacity 0.15s,
+        background 0.15s;
 
 }
 
 
-.qr-update-btn:hover {
+/* ホバー */
+
+.qr-status-btn:hover {
 
     transform: scale(1.02);
 
 }
 
 
-.qr-update-btn:disabled {
+/* 押したとき */
 
-    opacity: 0.5;
+.qr-status-btn:active {
+
+    transform: scale(0.98);
+
+}
+
+
+/* 無効化 */
+
+.qr-status-btn:disabled {
+
+    opacity: 0.45;
 
     cursor: default;
+
+    transform: none;
+
+}
+
+
+/* ========================================
+   受付前
+======================================== */
+
+.qr-status-btn.qr-waiting {
+
+    background: #333;
+
+    color: #aaa;
+
+    border-color: #555;
+
+}
+
+
+/* ========================================
+   受付済み
+======================================== */
+
+.qr-status-btn.qr-accepted {
+
+    background: #163653;
+
+    color: #42a5f5;
+
+    border-color: #42a5f5;
+
+}
+
+
+/* ========================================
+   入場済み
+======================================== */
+
+.qr-status-btn.qr-entered {
+
+    background: #19351f;
+
+    color: #66bb6a;
+
+    border-color: #66bb6a;
+
+}
+
+
+/* ========================================
+   無効
+======================================== */
+
+.qr-status-btn.qr-invalid {
+
+    background: #3b1d1d;
+
+    color: #ef5350;
+
+    border-color: #ef5350;
 
 }
 
@@ -436,23 +542,34 @@ main {
 
     width: 100%;
 
+    min-height: 58px;
+
+    padding: 15px 20px;
+
+    margin-top: 12px;
+
     border: none;
 
-    border-radius: 10px;
-
-    padding: 13px;
-
-    margin-top: 10px;
+    border-radius: 12px;
 
     background: #555;
 
     color: white;
 
-    font-size: 16px;
+    font-family:
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
+
+    font-size: 18px;
 
     font-weight: bold;
 
     cursor: pointer;
+
+    transition:
+        transform 0.15s,
+        background 0.15s;
 
 }
 
@@ -460,6 +577,15 @@ main {
 .qr-close-btn:hover {
 
     background: #666;
+
+    transform: scale(1.02);
+
+}
+
+
+.qr-close-btn:active {
+
+    transform: scale(0.98);
 
 }
 
@@ -474,16 +600,20 @@ main {
 
     border: 1px solid #ef5350;
 
+    padding: 25px 20px;
+
+    text-align: center;
+
 }
 
 
 .qr-result-title {
 
-    font-size: 20px;
+    font-size: 21px;
 
     font-weight: bold;
 
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 
 }
 
@@ -602,16 +732,12 @@ main {
 }
 
 
-/* 受付前 */
-
 .status-waiting {
 
     color: #aaa;
 
 }
 
-
-/* 受付済み */
 
 .status-accepted {
 
@@ -620,16 +746,12 @@ main {
 }
 
 
-/* 入場済み */
-
 .status-entered {
 
     color: #66bb6a;
 
 }
 
-
-/* 無効 */
 
 .status-invalid {
 
@@ -667,20 +789,10 @@ main {
         color 0.15s,
         border-color 0.15s;
 
-    /*
-       背景は固定。
-       カードの色も変わらない。
-    */
-
     background: #222;
 
 }
 
-
-/* ========================================
-   一覧プルダウン
-   受付前
-======================================== */
 
 .status-select.select-waiting {
 
@@ -691,11 +803,6 @@ main {
 }
 
 
-/* ========================================
-   一覧プルダウン
-   受付済み
-======================================== */
-
 .status-select.select-accepted {
 
     color: #42a5f5;
@@ -704,11 +811,6 @@ main {
 
 }
 
-
-/* ========================================
-   一覧プルダウン
-   入場済み
-======================================== */
 
 .status-select.select-entered {
 
@@ -719,11 +821,6 @@ main {
 }
 
 
-/* ========================================
-   一覧プルダウン
-   無効
-======================================== */
-
 .status-select.select-invalid {
 
     color: #ef5350;
@@ -733,10 +830,6 @@ main {
 }
 
 
-/* ========================================
-   プルダウン選択肢
-======================================== */
-
 .status-select option {
 
     background: #222;
@@ -745,10 +838,6 @@ main {
 
 }
 
-
-/* ========================================
-   フォーカス
-======================================== */
 
 .status-select:focus {
 
@@ -764,10 +853,6 @@ main {
 
 }
 
-
-/* ========================================
-   更新中
-======================================== */
 
 .status-select.updating {
 
@@ -830,16 +915,16 @@ main {
 
     #daySelect {
 
-        gap: 20px;
+        gap: 15px;
 
-        padding: 14px 10px;
+        padding: 14px 8px;
 
     }
 
 
     #daySelect label {
 
-        font-size: 16px;
+        font-size: 15px;
 
     }
 
@@ -854,6 +939,47 @@ main {
     #qrManager h2 {
 
         font-size: 22px;
+
+    }
+
+
+    .qr-main-btn {
+
+        min-height: 60px;
+
+        font-size: 18px;
+
+    }
+
+
+    .qr-ticket-control {
+
+        padding: 22px 16px;
+
+    }
+
+
+    .qr-ticket-number {
+
+        font-size: 36px;
+
+    }
+
+
+    .qr-status-btn {
+
+        min-height: 62px;
+
+        font-size: 18px;
+
+    }
+
+
+    .qr-close-btn {
+
+        min-height: 60px;
+
+        font-size: 18px;
 
     }
 
@@ -891,10 +1017,43 @@ main {
 
     }
 
+}
 
-    .qr-ticket-number {
 
-        font-size: 34px;
+/* ========================================
+   かなり小さいスマホ
+======================================== */
+
+@media (max-width: 380px) {
+
+    #daySelect {
+
+        gap: 8px;
+
+    }
+
+
+    #daySelect label {
+
+        font-size: 14px;
+
+    }
+
+
+    .qr-status-btn {
+
+        min-height: 60px;
+
+        font-size: 17px;
+
+    }
+
+
+    .qr-close-btn {
+
+        min-height: 60px;
+
+        font-size: 17px;
 
     }
 
