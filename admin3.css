@@ -1058,3 +1058,15 @@ main {
     }
 
 }
+
+/* ========================================
+   スマホでもプルダウンの▼を表示
+======================================== */
+
+.status-select {
+
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+
+}
