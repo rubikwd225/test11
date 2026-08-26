@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>🔐チケット管理</title>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <link
+        rel="stylesheet"
+        href="admin3.css"
+    >
+
+</head>
+
+
+<body>
+
+    <header>
+
+        <h1>チケット管理</h1>
+
+        <p>
+            すべての整理券の状態を変更できます
+        </p>
+
+    </header>
+
+
+    <main>
+
+        <!-- ====================================
+             日付選択
+        ===================================== -->
+
+        <div id="daySelect">
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="day"
+                    value="tickets_day1"
+                    checked
+                >
+
+                1日目
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="day"
+                    value="tickets_day2"
+                >
+
+                2日目
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="day"
+                    value="tickets_day3"
+                >
+
+                3日目
+
+            </label>
+
+        </div>
+
+
+        <!-- ====================================
+             QR管理
+        ===================================== -->
+
+        <div id="qrManager">
+
+            <h2>
+                QRチケット管理
+            </h2>
+
+            <p>
+                QRコードを読み取って<br>
+                整理券の状態を変更できます。
+            </p>
+
+
+            <button id="qrStartBtn">
+
+                QRコードを読み取る
+
+            </button>
+
+
+            <div id="qrReader"></div>
+
+
+            <button
+                id="qrStopBtn"
+                style="display: none;"
+            >
+
+                カメラを閉じる
+
+            </button>
+
+
+            <div id="qrResult"></div>
+
+        </div>
+
+
+        <!-- ====================================
+             読み込み
+        ===================================== -->
+
+        <div id="loading">
+
+            読み込み中...
+
+        </div>
+
+
+        <!-- ====================================
+             チケット一覧
+        ===================================== -->
+
+        <div id="ticketList"></div>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="admin3.js"
+    ></script>
+
+</body>
+
+</html>
