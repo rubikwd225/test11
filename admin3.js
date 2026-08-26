@@ -63,7 +63,7 @@ let qrProcessing =
 
 
 // ========================================
-// QRで検索するコレクション
+// QR検索対象
 // ========================================
 
 const qrCollections = [
@@ -108,7 +108,7 @@ startRealtimeListener();
 
 
 // ========================================
-// 通常のチケット一覧
+// チケット一覧監視
 // ========================================
 
 function startRealtimeListener() {
@@ -168,8 +168,6 @@ function startRealtimeListener() {
 
                 });
 
-
-                // 番号順
 
                 tickets.sort(
                     (a, b) => {
@@ -290,18 +288,6 @@ function createTicketElement(ticket) {
         "ticket";
 
 
-    const statusText =
-        getStatusText(
-            ticket.status
-        );
-
-
-    const statusClass =
-        getStatusClass(
-            ticket.status
-        );
-
-
     element.innerHTML = `
 
         <div class="ticket-info">
@@ -321,10 +307,10 @@ function createTicketElement(ticket) {
 
 
             <div
-                class="ticket-status ${statusClass}"
+                class="ticket-status ${getStatusClass(ticket.status)}"
             >
 
-                ${statusText}
+                ${getStatusText(ticket.status)}
 
             </div>
 
@@ -398,10 +384,6 @@ function createTicketElement(ticket) {
             ".ticket-status"
         );
 
-
-    // ====================================
-    // プルダウン変更
-    // ====================================
 
     select.addEventListener(
         "change",
@@ -503,7 +485,7 @@ function createTicketElement(ticket) {
 
 
 // ========================================
-// プルダウンCSS
+// 一覧プルダウンCSS
 // ========================================
 
 function getSelectClass(status) {
@@ -511,23 +493,18 @@ function getSelectClass(status) {
     switch (status) {
 
         case "waiting":
-
             return "select-waiting";
 
         case "accepted":
-
             return "select-accepted";
 
         case "entered":
-
             return "select-entered";
 
         case "invalid":
-
             return "select-invalid";
 
         default:
-
             return "select-waiting";
 
     }
@@ -536,7 +513,7 @@ function getSelectClass(status) {
 
 
 // ========================================
-// QR開始
+// QRスキャン開始
 // ========================================
 
 qrStartBtn.onclick =
@@ -548,7 +525,7 @@ qrStartBtn.onclick =
 
 
 // ========================================
-// QRスキャナー開始
+// QRスキャナー
 // ========================================
 
 async function startQRScanner() {
@@ -560,7 +537,8 @@ async function startQRScanner() {
     }
 
 
-    qrProcessing = false;
+    qrProcessing =
+        false;
 
 
     qrResult.style.display =
@@ -590,7 +568,8 @@ async function startQRScanner() {
 
     try {
 
-        qrScanning = true;
+        qrScanning =
+            true;
 
 
         await qrScanner.start(
@@ -604,8 +583,11 @@ async function startQRScanner() {
                 fps: 10,
 
                 qrbox: {
+
                     width: 250,
+
                     height: 250
+
                 }
 
             },
@@ -620,10 +602,14 @@ async function startQRScanner() {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "QRカメラエラー:",
+            error
+        );
 
 
-        qrScanning = false;
+        qrScanning =
+            false;
 
 
         qrReader.style.display =
@@ -669,7 +655,8 @@ async function qrScanSuccess(text) {
     }
 
 
-    qrProcessing = true;
+    qrProcessing =
+        true;
 
 
     await stopQRScanner();
@@ -687,7 +674,7 @@ async function qrScanSuccess(text) {
 
 
 // ========================================
-// QRから全コレクションを検索
+// 全種類からQR検索
 // ========================================
 
 async function findTicketByQR(ticketId) {
@@ -700,10 +687,6 @@ async function findTicketByQR(ticketId) {
         let foundData =
             null;
 
-
-        // ====================================
-        // DAY1～DAY3＋特別券を順番に検索
-        // ====================================
 
         for (
             const targetCollection
@@ -718,19 +701,21 @@ async function findTicketByQR(ticketId) {
                 );
 
 
-            const snap =
+            const snapshot =
                 await getDoc(
                     ticketRef
                 );
 
 
-            if (snap.exists()) {
+            if (
+                snapshot.exists()
+            ) {
 
                 foundCollection =
                     targetCollection;
 
                 foundData =
-                    snap.data();
+                    snapshot.data();
 
                 break;
 
@@ -772,10 +757,6 @@ async function findTicketByQR(ticketId) {
             "waiting";
 
 
-        // ====================================
-        // 見つかったチケットを表示
-        // ====================================
-
         showTicketControl(
 
             foundCollection,
@@ -793,7 +774,7 @@ async function findTicketByQR(ticketId) {
     catch (error) {
 
         console.error(
-            "QRチケット検索エラー:",
+            "QR検索エラー:",
             error
         );
 
@@ -814,7 +795,7 @@ async function findTicketByQR(ticketId) {
 
 
 // ========================================
-// 日付名
+// コレクション名 → 表示名
 // ========================================
 
 function getCollectionText(
@@ -824,23 +805,18 @@ function getCollectionText(
     switch (collectionName) {
 
         case "tickets_day1":
-
             return "1日目";
 
         case "tickets_day2":
-
             return "2日目";
 
         case "tickets_day3":
-
             return "3日目";
 
         case "special_tickets":
-
             return "特別招待券";
 
         default:
-
             return "不明";
 
     }
@@ -849,7 +825,7 @@ function getCollectionText(
 
 
 // ========================================
-// QR結果
+// QR結果表示
 // ========================================
 
 function showQRResult(
@@ -960,7 +936,9 @@ function showTicketControl(
                 class="qr-status-btn qr-waiting"
                 data-status="waiting"
             >
+
                 受付前
+
             </button>
 
 
@@ -968,7 +946,9 @@ function showTicketControl(
                 class="qr-status-btn qr-accepted"
                 data-status="accepted"
             >
+
                 受付済み
+
             </button>
 
 
@@ -976,7 +956,9 @@ function showTicketControl(
                 class="qr-status-btn qr-entered"
                 data-status="entered"
             >
+
                 入場済み
+
             </button>
 
 
@@ -984,7 +966,9 @@ function showTicketControl(
                 class="qr-status-btn qr-invalid"
                 data-status="invalid"
             >
+
                 無効
+
             </button>
 
         </div>
@@ -1064,7 +1048,10 @@ function showTicketControl(
 
                 catch (error) {
 
-                    console.error(error);
+                    console.error(
+                        "状態変更エラー:",
+                        error
+                    );
 
 
                     alert(
@@ -1093,7 +1080,7 @@ function showTicketControl(
 
 
 // ========================================
-// QR閉じる
+// QR閉じるボタン
 // ========================================
 
 function setupQRCloseButton() {
@@ -1111,18 +1098,19 @@ function setupQRCloseButton() {
     }
 
 
-    closeBtn.onclick = () => {
+    closeBtn.onclick =
+        () => {
 
-        qrResult.style.display =
-            "none";
+            qrResult.style.display =
+                "none";
 
-        qrResult.innerHTML =
-            "";
+            qrResult.innerHTML =
+                "";
 
-        qrProcessing =
-            false;
+            qrProcessing =
+                false;
 
-    };
+        };
 
 }
 
@@ -1144,7 +1132,7 @@ async function stopQRScanner() {
         catch (error) {
 
             console.log(
-                "QR scanner stop error:",
+                "scanner.stop error:",
                 error
             );
 
@@ -1160,7 +1148,7 @@ async function stopQRScanner() {
         catch (error) {
 
             console.log(
-                "QR scanner clear error:",
+                "scanner.clear error:",
                 error
             );
 
@@ -1192,7 +1180,7 @@ async function stopQRScanner() {
 
 
 // ========================================
-// QRカメラ閉じる
+// カメラを閉じる
 // ========================================
 
 qrStopBtn.onclick =
@@ -1224,23 +1212,18 @@ function getStatusText(status) {
     switch (status) {
 
         case "waiting":
-
             return "受付前";
 
         case "accepted":
-
             return "受付済み";
 
         case "entered":
-
             return "入場済み";
 
         case "invalid":
-
             return "無効";
 
         default:
-
             return "不明";
 
     }
@@ -1257,23 +1240,18 @@ function getStatusClass(status) {
     switch (status) {
 
         case "waiting":
-
             return "status-waiting";
 
         case "accepted":
-
             return "status-accepted";
 
         case "entered":
-
             return "status-entered";
 
         case "invalid":
-
             return "status-invalid";
 
         default:
-
             return "";
 
     }
