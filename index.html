@@ -101,18 +101,28 @@
             </p>
 
 
-            <button id="qrStartBtn">
+            <!-- QR読み取り開始 -->
+
+            <button
+                id="qrStartBtn"
+                class="qr-main-btn"
+            >
 
                 QRコードを読み取る
 
             </button>
 
 
+            <!-- QRリーダー -->
+
             <div id="qrReader"></div>
 
 
+            <!-- カメラ停止 -->
+
             <button
                 id="qrStopBtn"
+                class="qr-main-btn"
                 style="display: none;"
             >
 
@@ -120,6 +130,8 @@
 
             </button>
 
+
+            <!-- QR結果 -->
 
             <div id="qrResult"></div>
 
